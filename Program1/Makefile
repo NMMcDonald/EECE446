@@ -1,3 +1,7 @@
+# Group Members: Nicolas McDonald, Elijah Beverley
+# EECE446
+# Spring 2026
+
 EXE = h1-counter
 CFLAGS = -Wall
 CXXFLAGS = -Wall
@@ -10,8 +14,8 @@ all: $(EXE)
 
 # Implicit rules defined by Make, but you can redefine if needed
 #
-#h1-counter: h1-counter.c
-#	$(CC) $(CFLAGS) h1-counter.c $(LDLIBS) -o h1-counter
+h1-counter: h1-counter.c
+	$(CC) $(CFLAGS) h1-counter.c $(LDLIBS) -o h1-counter
 #
 # OR
 #
@@ -20,4 +24,4 @@ all: $(EXE)
 
 .PHONY: clean
 clean:
-	rm -f $(EXE)
+	rm -f $(EXE) *.o
