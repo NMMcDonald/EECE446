@@ -18,8 +18,31 @@
 
 int lookup_and_connect( const char *host, const char *service );
 
+// From Beej's Guide Chapter 7.4
+int sendall(int s, char *buf, int *len)
+{
+	int total = 0;
+	int bytes_left = *len;
+	int n;
+
+	while (total < *len)
+	{
+		n = send(s, buf+total, bytes_left, 0);
+		if (n == -1)
+		{
+			perror("Error while sending request");
+			break;	
+		}
+		total += n;
+		bytes_left -= n;
+	}
+	*len = total;
+	return n == -1?-1:0;
+}
+
 int main( int argc, char *argv[] ) {
-	char buf[argv[1]];
+	int chunk_size = argv[1];
+	char buf[chunk_size];
 	int s;
 	int outfd;
 
@@ -29,7 +52,7 @@ int main( int argc, char *argv[] ) {
 		exit(1);
 	}
 
-	if (argv[1] <= 3 | argv[1] >= 1001)
+	if (chunk_size <= 3 | chunk_size >= 1001)
 	{
 		fprint(stderr, "Chunk size must be a value between 5-999");
 		exit(1);
@@ -42,13 +65,20 @@ int main( int argc, char *argv[] ) {
 
 	// Send HTTP request to the server
 	char* http_req = "GET /~kkredo/file.html HTTP/1.0\r\n\r\n";
-	send(s,http_req, strlen(http_req), 0);
+	int req_len = strlen(http_req);
+	sendall(s, buf, req_len);
 
 	//Keep recieving data from the server and write it until server stops sending data
 	ssize_t bytes_recieved = 0;
 	size_t total_bytes_recieved = 0;
 	
-	while((bytes_recieved = recv(s, buf, 100, 0)) > 0){
+	while((bytes_recieved = recv(s, buf, chunk_size, 0)) > 0){
+		if (bytes_recieved == -1)
+		{
+			perror("Error while receiving bytes");
+			break;
+		}
+
 		write(outfd, buf, (size_t)bytes_recieved);
 		total_bytes_recieved += (size_t)bytes_recieved;
 	}
