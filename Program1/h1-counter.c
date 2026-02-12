@@ -98,7 +98,7 @@ int lookup_and_connect( const char *host, const char *service ) {
 
 	/* Translate host name into peer's IP address */
 	memset( &hints, 0, sizeof( hints ) );
-	hints.ai_family = AF_INET;
+	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = 0;
 	hints.ai_protocol = 0;
