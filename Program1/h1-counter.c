@@ -1,6 +1,7 @@
-/* This code is an updated version of the sample code from "Computer Networks: A Systems
- * Approach," 5th Edition by Larry L. Peterson and Bruce S. Davis. Some code comes from
- * man pages, mostly getaddrinfo(3). */
+// Group Members: Nicolas McDonald, Elijah Beverley
+// EECE446
+// Spring 2026
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -11,34 +12,32 @@
 #include <fcntl.h>
 #include <errno.h>
 
- #define HOST "www.ecst.csuchico.edu"
- #define PORT "80"
- #define REQUEST "GET /~kkredo/file.html HTTP/1.0\r\n\r\n"
- #define MAX_BUF_SIZE 256
+#define HOST "www.ecst.csuchico.edu"
+#define PORT "80"
+#define REQUEST "GET /~kkredo/file.html HTTP/1.0\r\n\r\n"
 
-/*
- * Lookup a host IP address and connect to it using service. Arguments match the first two
- * arguments to getaddrinfo(3).
- *
- * Returns a connected socket descriptor or -1 on error. Caller is responsible for closing
- * the returned socket.
- */
 int lookup_and_connect( const char *host, const char *service );
 
-
-
 int main( int argc, char *argv[] ) {
-	char buf[MAX_BUF_SIZE];
+	char buf[argv[1]];
 	int s;
 	int outfd;
-	char* fail_msg= "Failed to open output file\n";
-	if ((outfd = open("local_file", 0_WRONLY)) == -1){
-		write(STDOUT_FILENO, fail_msg, strlen(fail_msg));
+
+	if (argc != 2)
+	{
+		fprintf(stderr, "Wrong number of command line arguments given");	
+		exit(1);
+	}
+
+	if (argv[1] <= 3 | argv[1] >= 1001)
+	{
+		fprint(stderr, "Chunk size must be a value between 5-999");
+		exit(1);
 	}
 
 	/* Lookup IP and connect to server */
 	if ( ( s = lookup_and_connect( HOST, PORT ) ) < 0 ) {
-		exit( 1 );
+		exit(1);
 	}
 
 	// Send HTTP request to the server
@@ -54,8 +53,7 @@ int main( int argc, char *argv[] ) {
 		total_bytes_recieved += (size_t)bytes_recieved;
 	}
 
-
-	close( s );
+	close(s);
 	close(outfd);
 
 	return 0;
