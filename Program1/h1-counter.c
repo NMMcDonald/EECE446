@@ -41,10 +41,7 @@ int sendall(int s, char *buf, int *len)
 }
 
 int main( int argc, char *argv[] ) {
-	int chunk_size = argv[1];
-	char buf[chunk_size];
 	int s;
-	int outfd;
 
 	if (argc != 2)
 	{
@@ -52,9 +49,12 @@ int main( int argc, char *argv[] ) {
 		exit(1);
 	}
 
-	if (chunk_size <= 3 | chunk_size >= 1001)
+	int chunk_size = atoi(argv[1]);
+	char buf[chunk_size];
+
+	if ((chunk_size < 5) || (chunk_size > 1000))
 	{
-		fprint(stderr, "Chunk size must be a value between 5-999");
+		fprintf(stderr, "Chunk size must be a value between 5-999");
 		exit(1);
 	}
 
@@ -64,13 +64,14 @@ int main( int argc, char *argv[] ) {
 	}
 
 	// Send HTTP request to the server
-	char* http_req = "GET /~kkredo/file.html HTTP/1.0\r\n\r\n";
-	int req_len = strlen(http_req);
-	sendall(s, buf, req_len);
+	char *http_req = "GET /~kkredo/file.html HTTP/1.0\r\n\r\n";
+	int req_len = (int)strlen(http_req);
+	sendall(s, http_req, &req_len);
 
 	//Keep recieving data from the server and write it until server stops sending data
 	ssize_t bytes_recieved = 0;
 	size_t total_bytes_recieved = 0;
+	int tags_found = 0;
 	
 	while((bytes_recieved = recv(s, buf, chunk_size, 0)) > 0){
 		if (bytes_recieved == -1)
@@ -79,17 +80,13 @@ int main( int argc, char *argv[] ) {
 			break;
 		}
 
-		write(outfd, buf, (size_t)bytes_recieved);
+		// write code to find tags here
 		total_bytes_recieved += (size_t)bytes_recieved;
 	}
 
 	close(s);
-	close(outfd);
-
 	return 0;
 }
-
-
 
 int lookup_and_connect( const char *host, const char *service ) {
 	struct addrinfo hints;
